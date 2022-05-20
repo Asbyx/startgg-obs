@@ -1,9 +1,9 @@
 import { GraphQLClient, gql } from 'graphql-request'
 import fs from 'fs';
 
-const graphQLClient = new GraphQLClient('https://api.smash.gg/gql/alpha', {
+const graphQLClient = new GraphQLClient('https://api.smash.gg/gql/alpha', { //fixme: may have to be changed soon
     headers: {
-        authorization: 'Bearer e84c6638db103d045d5da05afdf000df',
+        authorization: 'Bearer [TODO: FILL HERE YOUR START GG API TOKEN]',
     },
 });
 
@@ -58,7 +58,6 @@ async function getStreamedSet(eventId){
                 nodes {
                     stream {
                         id
-                        enabled
                     }
                     fullRoundText
                     slots {
