@@ -3,7 +3,7 @@ import fs from 'fs';
 
 const graphQLClient = new GraphQLClient('https://api.smash.gg/gql/alpha', { //fixme: may have to be changed soon
     headers: {
-        authorization: 'Bearer [TODO: FILL HERE YOUR START GG API TOKEN]',
+        authorization: 'Bearer [API TOKEN]',
     },
 });
 
@@ -15,14 +15,18 @@ const eventName = process.argv[3];
 
 //get the event id for the given tournament and event
 const eventId = await getEventId(tournamentSlug, eventName);
-console.log("Event id of \'" + eventName + "\' of \'" + tournamentSlug + "\' : " + eventId);
-exit(eventId === -1, "Event not found.") // fixme: unprecise: we don't know if it is an error from the slug or the event name
+if(eventId !== -1 && eventId !== -2) console.log("Event id of \'" + eventName + "\' of \'" + tournamentSlug + "\' : " + eventId);
+exit(eventId === -1, "Event not found.");
+exit(eventId === -2, "Tournament not found.");
 
 setInterval( async function () {
     const set = await getStreamedSet(eventId);
-    exit(set === -1, "Streamed set not found");
+    if(set === -1) {
+        console.log("Streamed set not found !");
+        return;
+    }
 
-    const variables = {
+    const variables = { //fixme useless
         round: set.fullRoundText,
         name1: set.slots[0].entrant.name,
         name2: set.slots[1].entrant.name,
@@ -46,7 +50,7 @@ setInterval( async function () {
         if (err) console.log(err);
     });
     console.log("Updated successfully");
-}, 10 * 1000); //every 10 seconds
+}, 5 * 1000); //every 5 seconds
 
 async function getStreamedSet(eventId){
     const query = gql`
@@ -108,8 +112,16 @@ async function getEventId(tournamentSlug, eventName) {
     const vars = {
         tournament: tournamentSlug //application argument
     }
-    const resp = await graphQLClient.request(query, vars);
 
+    let resp;
+    try {
+         resp = await graphQLClient.request(query, vars);
+    } catch (e) {
+        console.log(e.message);
+        return -1;
+    }
+
+    if (resp.tournament === null) return -2;
     //extracting the correct id
     let eventId = -1;
     for (let i = 0; i < resp.tournament.events.length; ++i) {
