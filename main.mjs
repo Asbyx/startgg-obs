@@ -36,6 +36,9 @@ setInterval(async function () {
         score1 = set.slots[0].standing.stats.score.value === null ? 0 : set.slots[0].standing.stats.score.value,
         score2 = set.slots[1].standing.stats.score.value === null ? 0 : set.slots[1].standing.stats.score.value;
 
+    //if it is Grand Final, we specify which player come from loser side
+    if(round === "Grand Final") name2 += " (L)";
+
     let err = obs.writeSet(round, name1, score1, name2, score2);
 
     if (err) console.log(err)
