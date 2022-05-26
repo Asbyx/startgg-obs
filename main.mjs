@@ -1,7 +1,8 @@
-import { GraphQLClient, gql } from 'graphql-request'
-import fs from 'fs';
+import { GraphQLClient } from 'graphql-request';
+import * as queries from "./src/queries";
+import * as obs from "./src/obs"
 
-const graphQLClient = new GraphQLClient('https://api.smash.gg/gql/alpha', { //fixme: may have to be changed soon
+const graphQLClient = new GraphQLClient('https://api.start.gg/gql/alpha', {
     headers: {
         authorization: 'Bearer [API TOKEN]',
     },
@@ -14,121 +15,29 @@ const tournamentSlug = process.argv[2];
 const eventName = process.argv[3];
 
 //get the event id for the given tournament and event
-const eventId = await getEventId(tournamentSlug, eventName);
+const eventId = await queries.getEventId(graphQLClient, tournamentSlug, eventName);
 if(eventId !== -1 && eventId !== -2) console.log("Event id of \'" + eventName + "\' of \'" + tournamentSlug + "\' : " + eventId);
 exit(eventId === -1, "Event not found.");
 exit(eventId === -2, "Tournament not found.");
 
 setInterval( async function () {
-    const set = await getStreamedSet(eventId);
+    const set = await queries.getStreamedSet(graphQLClient, eventId);
     if(set === -1) {
         console.log("Streamed set not found !");
         return;
     }
 
-    const variables = { //fixme useless
-        round: set.fullRoundText,
-        name1: set.slots[0].entrant.name,
-        name2: set.slots[1].entrant.name,
-        score1: set.slots[0].standing.stats.score.value === null ? 0 : set.slots[0].standing.stats.score.value,
-        score2: set.slots[1].standing.stats.score.value === null ? 0 : set.slots[1].standing.stats.score.value,
-    }
+    let round = set.fullRoundText,
+    name1 =  set.slots[0].entrant.name,
+    name2 =  set.slots[1].entrant.name,
+    score1 =  set.slots[0].standing.stats.score.value === null ? 0 : set.slots[0].standing.stats.score.value,
+    score2 =  set.slots[1].standing.stats.score.value === null ? 0 : set.slots[1].standing.stats.score.value;
 
-    fs.writeFile("round.txt", variables.round, (err) => {
-        if (err) console.log(err);
-    });
-    fs.writeFile("name1.txt", variables.name1, (err) => {
-        if (err) console.log(err);
-    });
-    fs.writeFile("name2.txt", variables.name2, (err) => {
-        if (err) console.log(err);
-    });
-    fs.writeFile("score1.txt", variables.score1.toString(), (err) => {
-        if (err) console.log(err);
-    });
-    fs.writeFile("score2.txt", variables.score2.toString(), (err) => {
-        if (err) console.log(err);
-    });
-    console.log("Updated successfully");
+    let err = obs.writeSet(round, name1, score1, name2, score2);
+
+    if(err) console.log(err)
+    else console.log("Updated successfully");
 }, 5 * 1000); //every 5 seconds
-
-async function getStreamedSet(eventId){
-    const query = gql`
-    query getInProgressSets($id: ID) {
-        event(id: $id){
-            sets (filters: {
-                state: 2 # = in progress
-            }){
-                nodes {
-                    stream {
-                        id
-                    }
-                    fullRoundText
-                    slots {
-                        entrant {
-                            name
-                        }
-                        standing {
-                            stats {
-                                score {
-                                    value
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-    `;
-    const vars = {
-        id: eventId
-    };
-    const resp = await graphQLClient.request(query, vars);
-
-    //extract the set which has a stream
-    for (let i = 0; i < resp.event.sets.nodes.length; ++i) {
-        const set = resp.event.sets.nodes[i];
-        if (set.stream !== null){
-            return set;
-        }
-    }
-    return -1;
-}
-
-async function getEventId(tournamentSlug, eventName) {
-    const query = gql`
-        query getEventId($tournament: String){
-          tournament(slug: $tournament){
-            id
-            name
-            events {
-                name
-                id
-            }
-          }
-        }
-        `
-    const vars = {
-        tournament: tournamentSlug //application argument
-    }
-
-    let resp;
-    try {
-         resp = await graphQLClient.request(query, vars);
-    } catch (e) {
-        console.log(e.message);
-        return -1;
-    }
-
-    if (resp.tournament === null) return -2;
-    //extracting the correct id
-    let eventId = -1;
-    for (let i = 0; i < resp.tournament.events.length; ++i) {
-        if (resp.tournament.events[i].name === eventName) eventId = resp.tournament.events[i].id;
-    }
-    return eventId;
-}
 
 
 function exit(cond, msg){
