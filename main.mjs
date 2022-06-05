@@ -6,7 +6,7 @@ import * as obs from "./src/obs.js"
 exit(process.argv.length !== 5, "Invalid number of arguments. Require 3 (<api token> <tournament slug> <event name>)");
 const apiToken = process.argv[2]
 const tournamentSlug = process.argv[3];
-const eventName = process.argv[4];
+const eventSlug = process.argv[4];
 
 
 const graphQLClient = new GraphQLClient('https://api.start.gg/gql/alpha', {
@@ -16,9 +16,9 @@ const graphQLClient = new GraphQLClient('https://api.start.gg/gql/alpha', {
 });
 
 //get the event id for the given tournament and event
-const eventId = await queries.getEventId(graphQLClient, tournamentSlug, eventName);
-if (eventId >= 0) console.log("Event id of \'" + eventName + "\' of \'" + tournamentSlug + "\' : " + eventId);
-exit(eventId === -1, 'Event not found. (If it takes more than 1 word, you need to add quotes. ex: "Ultimate singles")');
+const eventId = await queries.getEventId(graphQLClient, tournamentSlug, eventSlug);
+if (eventId >= 0) console.log("Event id of \'" + eventSlug + "\' of \'" + tournamentSlug + "\' : " + eventId);
+exit(eventId === -1, 'Event not found. (slug = identifier in the url, ex: ultimate-singles")');
 exit(eventId === -2, "Tournament not found. (slug = identifier in the url, ex: pound-2022)");
 exit(eventId === -3, "Application exited.");
 

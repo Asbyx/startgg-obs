@@ -48,17 +48,17 @@ export async function getStreamedSet(graphQLClient, eventId){
  * Return the event id corresponding to the given event in the given tournament
  * @param graphQLClient graphQLClient which will make the request
  * @param tournamentSlug slug of the tournament
- * @param eventName full name of the event
+ * @param eventSlug slug of the event
  * @returns {Promise<number>} id of the event. Error codes: -1 : event not found | -2 : tournament not found | -3 request error
  */
-export async function getEventId(graphQLClient, tournamentSlug, eventName) {
+export async function getEventId(graphQLClient, tournamentSlug, eventSlug) {
     const query = gql`
         query getEventId($tournament: String){
           tournament(slug: $tournament){
             id
             name
             events {
-                name
+                slug
                 id
             }
           }
@@ -81,7 +81,7 @@ export async function getEventId(graphQLClient, tournamentSlug, eventName) {
     //extracting the correct id
     let eventId = -1;
     for (let i = 0; i < resp.tournament.events.length; ++i) {
-        if (resp.tournament.events[i].name === eventName) eventId = resp.tournament.events[i].id;
+        if (resp.tournament.events[i].slug.endsWith(eventSlug)) eventId = resp.tournament.events[i].id;
     }
     return eventId;
 }
