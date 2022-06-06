@@ -7,8 +7,8 @@ The app provides 5 files while running: round, name1, name2, score1, score2. The
 "name1" and "score1" file contain respectively the name and the score of the player 1. Same goes for the player 2. 
 All those files are stored in the folder "obs-files".
  
-Launch the app with the following command in a node shell: ```node main.mjs <api token> <tournament-slug> <Event Name>```.  
-Ex: ```node main.mjs 0123456789 pound-2022 "Ultimate singles"```
+Launch the app with the following command in a node shell: ```node main.mjs <api token> <tournament-slug> <event-slug>```.  
+Ex: ```node main.mjs 0123456789 pound-2022 ultimate-singles```
 
 # How to use startgg-obs
 ## Using nodejs
