@@ -22,7 +22,7 @@ while (changing) {
         await updateSettings();
     } else changing = false;
 }
-fs.writeFile("./config.json", JSON.stringify(data), err => {if(err) console.log(err); else console.log("Data have been correctly updated and written in config.json.")});
+fs.writeFile("./config.json", JSON.stringify(data), err => {if(err) log(err); else log("Data have been correctly updated and written in config.json.")});
 
 async function updateSettings() {
     console.log("Please change the settings you want to change in the format: <index> <arguments> ex: \"1 0123456789\"\n" +
@@ -58,16 +58,17 @@ const graphQLClient = new GraphQLClient('https://api.start.gg/gql/alpha', {
 
 //get the event id for the given tournament and event
 const eventId = await queries.getEventId(graphQLClient, data.tournament_slug, data.event_slug);
-if (eventId >= 0) console.log("Event id of \'" + data.event_slug + "\' of \'" + data.tournament_slug + "\' : " + eventId);
+if (eventId >= 0) log("Event id of \'" + data.event_slug + "\' of \'" + data.tournament_slug + "\' : " + eventId);
 exit(eventId === -1, 'Event not found. (slug = identifier in the url, ex: ultimate-singles")');
 exit(eventId === -2, "Tournament not found. (slug = identifier in the url, ex: pound-2022)");
 exit(eventId === -3, "Application exited.");
+
 
 //main loop: get the streamed set and update the files in obs-files
 setInterval(async function () {
     const set = await queries.getStreamedSet(graphQLClient, eventId);
     if (set === -1) {
-        console.log("Streamed set not found !");
+        log("Streamed set not found ! (Usually takes 1 minute to find the set)");
         return;
     }
 
@@ -81,16 +82,24 @@ setInterval(async function () {
     if(round === "Grand Final") name2 += " (L)";
 
     let err = obs.writeSet(round, name1, score1, name2, score2);
+    if (err) log(err)
+    else log("Updated successfully");
 
-    if (err) console.log(err)
-    else console.log("Updated successfully");
 }, 2.5 * 1000); //every 2.5 seconds
 
 
+/**
+ * Allow to log with time indicated, for more clarity
+ */
+function log(msg){
+    let now = new Date();
+    now.setTime(Date.now());
+    console.log("[%s:%s:%s] %s", now.getHours().toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false}), now.getMinutes().toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false}), now.getSeconds().toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false}), msg);
+}
 
 function exit(cond, msg) {
     if (cond) {
-        console.log(msg);
+        log(msg);
         process.exit(1);
     }
 }
