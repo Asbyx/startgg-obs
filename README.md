@@ -6,9 +6,9 @@ In short, when you update the score of a set in startgg, it is automatically upd
 The app provides 5 files while running: round, name1, name2, score1, score2. The "round" file contains the display name of a round (ex: Winner Final). The 
 "name1" and "score1" file contain respectively the name and the score of the player 1. Same goes for the player 2. 
 All those files are stored in the folder "obs-files".
- 
-Launch the app with the following command in a node shell: ```node main.mjs <api token> <tournament-slug> <event-slug>```.  
-Ex: ```node main.mjs 0123456789 pound-2022 ultimate-singles```
+
+You need nodejs in order to launch the application (standardized version coming soon) 
+Launch the app with the following command **in a node shell**: ```node main.mjs```.
 
 # How to use startgg-obs
 ## Using nodejs
@@ -18,9 +18,9 @@ Ex: ```node main.mjs 0123456789 pound-2022 ultimate-singles```
 
 ## In Startgg
 Before the tournament, define a stream in Settings → Stations & Stream   
-During the tournament, the only required thing is to set the stream for every set you want to stream and keep track of the score !
+During the tournament, the only required thing is to set the stream for every set you want to stream, set the set as started and keep track of the score !
 
 ## In OBS
 Once you have set your scene with all text fields, instead of changing the name of the players manually *(booooooring)*, select the option "Read from file" and select the correct file in ```obs-files```, where you extracted the zip.  
-And that's it ! You can take a break for the whole tounament, scores and names while automatically be updated when you update them with Startgg  
+And that's it ! You can take a break for the whole tounament, scores and names while automatically be updated when you update them in the bracket in start.gg  
 *(when changing from a set to another, it usually takes 1 minute to update)*
