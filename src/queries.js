@@ -106,3 +106,39 @@ export async function getEventId(tournamentSlug, eventSlug) {
     }
     return eventId;
 }
+
+
+
+/**
+ * Getter for the set currently started and streamed
+ * @returns {Promise<Object>} the set id in the start.gg api. Error codes: -1 if not on-going streamed set has been found | -2 if an error occurred while requesting the set
+ */
+export async function getNonCheckedInAttendees(eventId) {
+    const query = gql`
+    query getNonCheckedInAttendees($id :ID) {
+        event(id: $id){
+            entrants {
+                nodes {
+                    participants {
+                        checkedIn
+                        gamerTag
+                    }
+                }
+            }
+        }
+    }
+    `;
+    const vars = {
+        id: eventId
+    };
+    let resp;
+    try {
+        resp = await graphQLClient.request(query, vars);
+    } catch (e) {
+        const json = JSON.parse(e.message.substring(e.message.indexOf("{")));
+        if (json.response.message !== undefined) console.log("Error when queried the attendees: \x1b[31m" + json.response.message + "\x1b[0m");
+        else console.log(e);
+        return -2;
+    }
+    return resp.event.entrants.nodes.filter(x => !x.checkedIn);
+}
