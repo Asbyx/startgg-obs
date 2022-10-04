@@ -4,7 +4,10 @@
   "description": "",
   "main": "main.mjs",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "shl": "node main.mjs shell",
+    "shell": "node main.mjs shell",
+    "gr": "node main.mjs graphic",
+    "graphic": "node main.mjs graphic"
   },
   "type": "module",
   "keywords": [],
@@ -12,6 +15,7 @@
   "license": "MIT",
   "dependencies": {
     "graphql-request": "^4.2.0",
-    "prompt-sync": "^4.2.0"
+    "prompt-sync": "^4.2.0",
+    "react-dom": "^18.2.0"
   }
 }
