@@ -17,7 +17,11 @@ switch (process.argv[2]){
  */
 export function log(msg, error = false){
     let now = new Date(Date.now());
-    console.log("[%s:%s:%s] %s%s%s", now.getHours().toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false}), now.getMinutes().toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false}), now.getSeconds().toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false}), msg, (error ? "\x1b[31m" : ""), "\x1b[0m");
+    console.log("[%s:%s:%s] %s%s%s",
+        now.getHours().toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false}),
+        now.getMinutes().toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false}),
+        now.getSeconds().toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false}),
+        (error ? "\x1b[31m" : ""), msg, "\x1b[0m");
 }
 
 /**
