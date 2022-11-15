@@ -15,6 +15,7 @@ export async function main_shell() {
     initRequester(data.api_token);
     let eventId = await getEvent(data);
 
+    let unknown_error_timeout = 0;
     let main = setInterval(() => mainLoop(data, eventId), 2.5 * 1000);
 
 
@@ -24,14 +25,13 @@ export async function main_shell() {
     async function getEvent(data) {
         // Get the event id for the given tournament and event
         const eventId = await getEventId(data.tournament_slug, data.event_slug);
+        // If we didn't find the event we log the corresponding error msg
+        exit(eventId === -1, 'Event not found. (slug = identifier in the url, ex: ultimate-singles")', true);
+        exit(eventId === -2, "Tournament not found. (slug = identifier in the url, ex: pound-2022)", true);
+        exit(eventId === -3, "Application exited.", true); // Explanation already logged in getEventId
 
         // If we found the event, we log it
         if (eventId >= 0) log("Event id of \'" + data.event_slug + "\' of \'" + data.tournament_slug + "\' : " + eventId);
-
-        // If we didn't find the event we log the Corresponding error msg
-        exit(eventId === -1, 'Event not found. (slug = identifier in the url, ex: ultimate-singles")', true);
-        exit(eventId === -2, "Tournament not found. (slug = identifier in the url, ex: pound-2022)", true);
-        exit(eventId === -3, "Application exited.", true);
 
         return eventId;
     }
@@ -44,7 +44,15 @@ export async function main_shell() {
         if (set === -1) {
             log("Streamed set not found ! (Usually takes 1 minute to find the set)");
             return;
-        } else if (set === -2) exit(true, "Application terminated");
+        } else if (set === -2) { // Happens from times to times, not a big deal
+            // Detects if it is a big deal
+            if (unknown_error_timeout === 10) {
+                await getStreamedSet(eventId, true);
+            }
+            return;
+        }
+        else if (set === -4) exit(true, "Fatal error: application terminated");
+        unknown_error_timeout = 0;
 
         let round = set.fullRoundText,
             name1 = set.slots[0].entrant.name,
