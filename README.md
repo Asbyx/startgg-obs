@@ -8,7 +8,7 @@ The app provides 5 files while running: round, name1, name2, score1, score2. The
 All those files are stored in the folder "obs-files".
 
 You need nodejs in order to launch the application (standardized version coming soon) 
-Launch the app with the following command **in a command prompt**: ```node main.mjs```.
+Launch the app with the following command **in a command prompt**: ```node main.mjs shell```.
 
 # How to use startgg-obs
 ## Using nodejs
